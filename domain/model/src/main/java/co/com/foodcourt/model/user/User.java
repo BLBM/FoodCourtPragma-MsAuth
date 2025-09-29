@@ -1,4 +1,4 @@
-package co.com.foodcourt.model.owner;
+package co.com.foodcourt.model.user;
 import co.com.foodcourt.model.rol.Rol;
 import lombok.*;
 
@@ -10,8 +10,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Owner {
+public class User {
 
+    private String userId;
     private String firstName;
     private String lastName;
     private Long documentId;

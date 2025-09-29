@@ -1,6 +1,6 @@
 package co.com.foodcourt.usecase.util;
 
-import co.com.foodcourt.model.owner.Owner;
+import co.com.foodcourt.model.user.User;
 import co.com.foodcourt.model.rol.Rol;
 import co.com.foodcourt.usecase.common.ValidationMessages;
 import co.com.foodcourt.usecase.exception.ValidationException;
@@ -56,14 +56,14 @@ public class ValidateUser {
     }
 
 
-    public static void validateUser(Owner owner) {
-        if (owner == null) {
+    public static void validateUser(User user) {
+        if (user == null) {
             throw new ValidationException(ValidationMessages.INVALID_USER.getMessage());
         }
-        validateEmail(owner.getEmail());
-        validatePhone(owner.getPhone());
-        validateDocumentId(owner.getDocumentId());
-        validateRole(owner.getRole());
-        validateBirthDate(owner.getBirthDate());
+        validateEmail(user.getEmail());
+        validatePhone(user.getPhone());
+        validateDocumentId(user.getDocumentId());
+        validateRole(user.getRole());
+        validateBirthDate(user.getBirthDate());
     }
 }
