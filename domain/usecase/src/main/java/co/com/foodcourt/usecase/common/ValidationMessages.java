@@ -1,5 +1,8 @@
 package co.com.foodcourt.usecase.common;
 
+import lombok.Getter;
+
+@Getter
 public enum ValidationMessages {
     INVALID_EMAIL("Invalid email format"),
     INVALID_PHONE("Invalid phone number. It must be up to 13 digits and may start with +"),
@@ -14,7 +17,4 @@ public enum ValidationMessages {
         this.message = message;
     }
 
-    public String getMessage() {
-        return message;
-    }
 }

@@ -22,7 +22,7 @@ public class UserController {
 
     private  final CreateUserUseCase createUserUseCase;
 
-    @PostMapping(value = "/createUser")
+    @PostMapping(value = "/createOwner")
     public ResponseEntity<CreateUserResponse> createUser(@Valid @RequestBody CreateUserRequest user) {
 
             log.info(LogConstants.CREATE_USER_REQUEST.getMessage(), user.email());

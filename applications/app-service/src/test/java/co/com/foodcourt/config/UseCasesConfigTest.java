@@ -1,13 +1,16 @@
 package co.com.foodcourt.config;
 
+import co.com.foodcourt.model.user.gateways.UserRepository;
+import co.com.foodcourt.usecase.createuser.CreateUserUseCase;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UseCasesConfigTest {
+class UseCasesConfigTest {
 
     @Test
     void testUseCaseBeansExist() {
@@ -34,11 +37,22 @@ public class UseCasesConfigTest {
         public MyUseCase myUseCase() {
             return new MyUseCase();
         }
-    }
 
-    static class MyUseCase {
-        public String execute() {
-            return "MyUseCase Test";
+        @Bean
+        public UserRepository userRepository() {
+            return Mockito.mock(UserRepository.class);
+        }
+
+        @Bean
+        public CreateUserUseCase createUserUseCase() {
+            return Mockito.mock(CreateUserUseCase.class);
+        }
+
+
+        static class MyUseCase {
+            public String execute() {
+                return "MyUseCase Test";
+            }
         }
     }
 }
