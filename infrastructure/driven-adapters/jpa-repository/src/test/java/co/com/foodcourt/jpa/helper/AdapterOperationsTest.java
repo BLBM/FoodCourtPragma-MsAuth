@@ -2,6 +2,7 @@ package co.com.foodcourt.jpa.helper;
 
 import co.com.foodcourt.jpa.useradapter.JPARepository;
 import co.com.foodcourt.jpa.useradapter.JPARepositoryAdapter;
+import co.com.foodcourt.jpa.useradapter.RolJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -26,13 +27,15 @@ class AdapterOperationsTest {
 
     private JPARepositoryAdapter adapter;
 
+    private RolJpaRepository rolJpaRepository;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
         when(objectMapper.map("value", Object.class)).thenReturn("value");
 
-        adapter = new JPARepositoryAdapter(repository, objectMapper);
+        adapter = new JPARepositoryAdapter(repository, objectMapper,rolJpaRepository);
     }
 
     @Test

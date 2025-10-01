@@ -12,7 +12,7 @@ buildCache {
     }
 }
 
-rootProject.name = 'NameProject'
+rootProject.name = 'PlazoletaPragma-msAuth'
 
 include ':app-service'
 include ':model'

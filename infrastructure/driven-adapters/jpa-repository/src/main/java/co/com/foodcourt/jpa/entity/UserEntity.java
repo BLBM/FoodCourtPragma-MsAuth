@@ -1,6 +1,5 @@
 package co.com.foodcourt.jpa.entity;
 
-import co.com.foodcourt.model.rol.Rol;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,21 +14,22 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "document_id",nullable = false, unique = true)
     private Long documentId;
 
     @Column(nullable = false, length = 13)
     private String phone;
 
-    @Column(nullable = false)
+    @Column(name = "birth_date",nullable = false)
     private LocalDate birthDate;
 
     @Column(nullable = false, unique = true, length = 150)
