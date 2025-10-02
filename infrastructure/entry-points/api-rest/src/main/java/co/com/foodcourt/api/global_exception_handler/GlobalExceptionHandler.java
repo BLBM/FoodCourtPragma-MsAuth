@@ -4,7 +4,6 @@ import co.com.foodcourt.api.common.LogConstants;
 import co.com.foodcourt.model.user.exception.DuplicateDocumentException;
 import co.com.foodcourt.model.user.exception.DuplicateEmailException;
 import co.com.foodcourt.usecase.exception.ValidationException;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -32,14 +31,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(LogConstants.TIMESTAMP.getMessage(), LocalDateTime.now());
-        body.put(LogConstants.ERROR.getMessage(), "Validation failed");
-        body.put(LogConstants.DETAILS.getMessage(), ex.getMessage());
-        return ResponseEntity.badRequest().body(body);
-    }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(ValidationException ex) {
