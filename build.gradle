@@ -8,6 +8,7 @@ buildscript {
         lombokVersion = '1.18.38'
         mapStructVersion = '1.6.3'
         dotenvVersion = '4.0.0'
+        securityCriptoVersion = '6.2.2'
 	}
 }
 

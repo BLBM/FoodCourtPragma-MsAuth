@@ -8,6 +8,7 @@ import co.com.foodcourt.jpa.helper.AdapterOperations;
 import co.com.foodcourt.model.user.User;
 import co.com.foodcourt.model.user.exception.DuplicateDocumentException;
 import co.com.foodcourt.model.user.exception.DuplicateEmailException;
+import co.com.foodcourt.model.user.gateways.PasswordEncoderRepository;
 import co.com.foodcourt.model.user.gateways.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +22,15 @@ public class JPARepositoryAdapter extends AdapterOperations<User, UserEntity, St
 implements UserRepository
 {
     private final RolJpaRepository rolJpaRepository;
+    private final PasswordEncoderRepository passwordEncoderRepository;
 
-    public JPARepositoryAdapter(JPARepository repository, ObjectMapper mapper, RolJpaRepository rolJpaRepository) {
+    public JPARepositoryAdapter(JPARepository repository,
+                                ObjectMapper mapper,
+                                RolJpaRepository rolJpaRepository,
+                                PasswordEncoderRepository passwordEncoderRepository) {
         super(repository, mapper, d -> mapper.map(d, User.class));
         this.rolJpaRepository = rolJpaRepository;
+        this.passwordEncoderRepository = passwordEncoderRepository;
     }
 
     @Override
@@ -32,14 +38,15 @@ implements UserRepository
     public User saveUser(User user) {
         try {
             log.info(LogConstants.SAVE_USER.getMessage(), user.getRole());
-            UserEntity entity = super.mapper.map(user, UserEntity.class);
+            UserEntity userEntity= super.mapper.map(user, UserEntity.class);
 
             RolEntity roleEntity = rolJpaRepository.findByName(user.getRole().name())
                     .orElseThrow(() -> new IllegalArgumentException(LogConstants.ROLE_NOT_FOUND.getMessage() + user.getRole()));
 
-            entity.setRole(roleEntity);
+            userEntity.setRole(roleEntity);
 
-            UserEntity saved = repository.save(entity);
+            userEntity.setPassword(passwordEncoderRepository.encode(user.getPassword()));
+            UserEntity saved = repository.save(userEntity);
             log.info(LogConstants.USER_SAVED.getMessage(), saved.getUserId());
             return toEntity(saved);
 

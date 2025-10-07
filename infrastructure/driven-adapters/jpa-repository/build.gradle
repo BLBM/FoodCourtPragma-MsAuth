@@ -8,4 +8,5 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.reactivecommons.utils:object-mapper:0.1.0'
     testImplementation 'com.h2database:h2:2.2.224'
+    implementation "org.springframework.security:spring-security-crypto:${securityCriptoVersion}"
 }
