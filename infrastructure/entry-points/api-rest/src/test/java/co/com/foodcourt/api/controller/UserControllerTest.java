@@ -74,7 +74,7 @@ class UserControllerTest {
     void shouldCreateUserAndReturn201() throws Exception {
         when(createUserUseCase.saveOwner(any(User.class))).thenReturn(domainUser);
 
-        mockMvc.perform(post("/api/v1/createOwner")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -88,7 +88,7 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new ValidationException("Custom business validation failed"));
 
-        mockMvc.perform(post("/api/v1/createOwner")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -100,7 +100,7 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new DuplicateEmailException("Email already exists"));
 
-        mockMvc.perform(post("/api/v1/createOwner")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
@@ -113,7 +113,7 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new DuplicateDocumentException("Document already exists"));
 
-        mockMvc.perform(post("/api/v1/createOwner")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
@@ -125,7 +125,7 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new RuntimeException("Unexpected error"));
 
-        mockMvc.perform(post("/api/v1/createOwner")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isInternalServerError())
@@ -146,7 +146,7 @@ class UserControllerTest {
         }
         """;
 
-        mockMvc.perform(post("/api/v1/createOwner")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
                 .andExpect(status().isBadRequest())

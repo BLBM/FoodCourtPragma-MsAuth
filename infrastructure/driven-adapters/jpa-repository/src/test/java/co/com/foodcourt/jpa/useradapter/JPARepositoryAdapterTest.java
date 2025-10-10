@@ -68,10 +68,10 @@ class JPARepositoryAdapterTest {
 
     @Test
     void testFindById() {
-        when(repository.findById("1")).thenReturn(Optional.of(entity));
+        when(repository.findById(1L)).thenReturn(Optional.of(entity));
         when(mapper.map(entity, User.class)).thenReturn(user);
 
-        User result = adapter.findById("1");
+        User result = adapter.findById(1L);
 
         assertEquals(user, result);
     }

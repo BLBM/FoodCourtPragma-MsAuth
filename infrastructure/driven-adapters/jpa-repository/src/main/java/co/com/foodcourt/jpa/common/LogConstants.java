@@ -2,8 +2,8 @@ package co.com.foodcourt.jpa.common;
 
 public enum LogConstants {
     SAVE_USER("Saving user: {}"),
-    USER_SAVED("User saved successfully with id: {}"),
-    ROLE_NOT_FOUND("Role not found with id: ");
+    USER_SAVED("User saved successfully with id: {}");
+
 
     private final String message;
 

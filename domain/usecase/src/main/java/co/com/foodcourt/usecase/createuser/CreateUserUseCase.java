@@ -9,11 +9,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CreateUserUseCase {
 
-    private final UserRepository ownerRepository;
+    private final UserRepository userRepository;
 
     public User saveOwner(User user) {
         user.setRole(Rol.OWNER);
         ValidateUser.validateUser(user);
-        return ownerRepository.saveUser(user);
+        return userRepository.saveUser(user);
+    }
+
+    public User getUser(Long userId){
+        return userRepository.findByIdWithRole(userId);
     }
 }

@@ -13,8 +13,6 @@ local.properties
 .settings/
 .loadpath
 .recommenders
-
-applications/app-service/src/main/resources/application.yaml
 .env
 
 # External tool builders

@@ -45,7 +45,7 @@ class CreateUserUseCaseTest {
 
     @Test
     void shouldAssignOwnerRoleAndSaveUser() {
-        User savedUser = user.toBuilder().userId("1").role(Rol.OWNER).build();
+        User savedUser = user.toBuilder().userId(1L).role(Rol.OWNER).build();
         when(userRepository.saveUser(any(User.class))).thenReturn(savedUser);
         User result = createUserUseCase.saveOwner(user);
         assertEquals(Rol.OWNER, result.getRole());
