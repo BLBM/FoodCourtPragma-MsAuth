@@ -7,6 +7,7 @@ import co.com.foodcourt.model.rol.Rol;
 import co.com.foodcourt.model.user.User;
 import co.com.foodcourt.model.user.exception.DuplicateDocumentException;
 import co.com.foodcourt.model.user.exception.DuplicateEmailException;
+import co.com.foodcourt.model.user.exception.UserNotFoundException;
 import co.com.foodcourt.usecase.createuser.CreateUserUseCase;
 import co.com.foodcourt.usecase.exception.ValidationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +23,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -154,7 +157,45 @@ class UserControllerTest {
                 .andExpect(jsonPath("$['timestamp:']").exists());
     }
 
+    /// /////////////// GET USER BY ID TEST////////////
 
+    @Test
+    void shouldGetUserByIdAndReturn200() throws Exception {
 
+        Long userId = 1L;
+        when(createUserUseCase.getUser(userId)).thenReturn(domainUser);
 
+        mockMvc.perform(get("/api/v1/users/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Smith"))
+                .andExpect(jsonPath("$.email").value("Smith@email.com"))
+                .andExpect(jsonPath("$.phone").value("+573155544545"))
+                .andExpect(jsonPath("$.role").value("ADMIN"));
+    }
+
+    @Test
+    void shouldHandleUserNotFoundExceptionAndReturn404() throws Exception {
+        Long userId = 999L;
+        when(createUserUseCase.getUser(anyLong()))
+                .thenThrow(new UserNotFoundException("User not found with id: " + userId));
+
+        mockMvc.perform(get("/api/v1/users/{userId}", userId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.details:").value("User not found with id: " + userId));
+    }
+
+    @Test
+    void shouldHandleGenericExceptionAndReturn500() throws Exception {
+        Long userId = 1L;
+        when(createUserUseCase.getUser(anyLong()))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        mockMvc.perform(get("/api/v1/users/{userId}", userId))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error:").value("Unexpected error"));
+    }
 }
+
+
+

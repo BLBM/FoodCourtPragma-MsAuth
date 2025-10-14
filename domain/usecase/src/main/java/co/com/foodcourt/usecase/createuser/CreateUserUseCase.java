@@ -12,8 +12,8 @@ public class CreateUserUseCase {
     private final UserRepository userRepository;
 
     public User saveOwner(User user) {
-        user.setRole(Rol.OWNER);
         ValidateUser.validateUser(user);
+        user.setRole(Rol.OWNER);
         return userRepository.saveUser(user);
     }
 

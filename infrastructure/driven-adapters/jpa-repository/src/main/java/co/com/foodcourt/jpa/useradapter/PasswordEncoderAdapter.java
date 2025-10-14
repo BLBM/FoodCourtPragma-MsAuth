@@ -15,4 +15,8 @@ public class PasswordEncoderAdapter implements PasswordEncoderRepository {
     public String encode(String rawPassword){
         return delegate.encode(rawPassword);
     }
+
+    public boolean matches(String rawPassword, String encodedPassword) {
+        return delegate.matches(rawPassword, encodedPassword);
+    }
 }

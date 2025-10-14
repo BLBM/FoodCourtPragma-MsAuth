@@ -2,6 +2,7 @@ package co.com.foodcourt.usecase.createuser;
 
 import co.com.foodcourt.model.rol.Rol;
 import co.com.foodcourt.model.user.User;
+import co.com.foodcourt.model.user.exception.UserNotFoundException;
 import co.com.foodcourt.model.user.gateways.UserRepository;
 import co.com.foodcourt.usecase.common.ValidationMessages;
 import co.com.foodcourt.usecase.exception.ValidationException;
@@ -14,8 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -40,6 +40,7 @@ class CreateUserUseCaseTest {
                 .email("laura@example.com")
                 .birthDate(LocalDate.of(2000, 1, 1))
                 .password("secret123")
+                .role(Rol.ADMIN)
                 .build();
     }
 
@@ -86,4 +87,45 @@ class CreateUserUseCaseTest {
         assertEquals(ValidationMessages.INVALID_PHONE.getMessage(), ex.getMessage());
     }
 
+    @Test
+    void shouldThrowValidationExceptionWhenRestaurantIsNull() {
+        ValidationException ex = assertThrows(
+                ValidationException.class,
+                () -> createUserUseCase.saveOwner(null)
+        );
+
+        assertEquals(ValidationMessages.INVALID_USER.getMessage(), ex.getMessage());
+
+        verify(userRepository, never()).saveUser(any());
+    }
+
+    /// //////////// TEST FEATURE HU2 GET USER BY ID //////////////
+
+
+    @Test
+    void getUser_WhenUserNotFound_ShouldThrowException() {
+        Long userId = 999L;
+        when(userRepository.findByIdWithRole(userId))
+                .thenThrow(new UserNotFoundException("User not found with id: " + userId));
+
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> createUserUseCase.getUser(userId)
+        );
+
+        assertTrue(exception.getMessage().contains(String.valueOf(userId)));
+        verify(userRepository, times(1)).findByIdWithRole(userId);
+    }
+
+    @Test
+    void getUser_ShouldDelegateToRepository() {
+        Long userId = 1L;
+        when(userRepository.findByIdWithRole(userId)).thenReturn(user);
+
+        User result = createUserUseCase.getUser(userId);
+
+        assertSame(user, result);
+        verify(userRepository, times(1)).findByIdWithRole(userId);
+        verifyNoMoreInteractions(userRepository);
+    }
 }
