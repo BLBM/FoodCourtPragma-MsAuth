@@ -53,18 +53,50 @@ public class UserController {
             }
     )
     @PostMapping(path = "/owner")
-    public ResponseEntity<CreateUserResponse> createUser(@RequestHeader("X-User-role") String role,
+    public ResponseEntity<CreateUserResponse> createOwner(@RequestHeader("X-User-role") String role,
                                                              @Valid  @RequestBody CreateUserRequest user) {
 
             if (!Rol.ADMIN.name().equalsIgnoreCase(role)) {
                 throw new UnauthorizedException(ErrorConstants.INVALID_ROL_CREATE_OWNER.getMessage());
             }
 
-            log.info(LogConstants.CREATE_USER_REQUEST.getMessage(), user.email());
+            log.info(LogConstants.CREATE_OWNER_REQUEST.getMessage(), user.email());
             User createdUser = createUserUseCase.saveOwner(CreateUserMapper.INSTANCE.toDomain(user));
-            log.info(LogConstants.CREATE_USER_SUCCESS.getMessage(), createdUser.getUserId());
+            log.info(LogConstants.CREATE_OWNER_SUCCESS.getMessage(), createdUser.getUserId());
             return ResponseEntity.status(HttpStatus.CREATED).body(CreateUserMapper.INSTANCE.toDto(createdUser));
     }
+
+    @Operation(
+            summary = SwaggerConstants.CREATE_EMPLOYEE_SUMMARY,
+            description = SwaggerConstants.CREATE_EMPLOYEE_DESCRIPTION,
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Owner user successfully created",
+                            content = @Content(schema = @Schema(implementation = CreateUserResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Validation error",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized - invalid role",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "409", description = "Conflict - duplicate email or document",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Unexpected internal error",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    @PostMapping(path = "/employee")
+    public ResponseEntity<CreateUserResponse> createEmployee(@RequestHeader("X-User-role") String role,
+                                                         @Valid  @RequestBody CreateUserRequest user) {
+
+        if (!Rol.OWNER.name().equalsIgnoreCase(role)) {
+            throw new UnauthorizedException(ErrorConstants.INVALID_ROL_CREATE_EMPLOYEE.getMessage());
+        }
+
+        log.info(LogConstants.CREATE_EMPLOYEE_REQUEST.getMessage(), user.email());
+        User createdUser = createUserUseCase.saveEmployee(CreateUserMapper.INSTANCE.toDomain(user));
+        log.info(LogConstants.CREATE_EMPLOYEE_SUCCESS.getMessage(), createdUser.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(CreateUserMapper.INSTANCE.toDto(createdUser));
+    }
+
+
 
     @Operation(
             summary = SwaggerConstants.GET_USER_BY_ID_SUMMARY,

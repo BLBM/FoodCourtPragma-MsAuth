@@ -68,4 +68,5 @@ public class AuthController {
         log.info(LogConstants.LOGIN_SUCCESS.getMessage(), request.email());
         return token;
     }
+
 }

@@ -11,10 +11,18 @@ public class CreateUserUseCase {
 
     private final UserRepository userRepository;
 
-    public User saveOwner(User user) {
+    private User saveWithRole(User user, Rol role) {
         ValidateUser.validateUser(user);
-        user.setRole(Rol.OWNER);
+        user.setRole(role);
         return userRepository.saveUser(user);
+    }
+
+    public User saveOwner(User user) {
+        return saveWithRole(user, Rol.OWNER);
+    }
+
+    public User saveEmployee(User user) {
+        return saveWithRole(user, Rol.EMPLOYEE);
     }
 
     public User getUser(Long userId){
