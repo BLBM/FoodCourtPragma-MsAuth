@@ -6,6 +6,7 @@ import co.com.foodcourt.jpa.entity.UserEntity;
 import co.com.foodcourt.jpa.util.RolMapper;
 import co.com.foodcourt.model.rol.Rol;
 import co.com.foodcourt.model.user.User;
+import co.com.foodcourt.model.user.exception.AuthException;
 import co.com.foodcourt.model.user.exception.DuplicateDocumentException;
 import co.com.foodcourt.model.user.exception.DuplicateEmailException;
 import co.com.foodcourt.model.user.exception.UserNotFoundException;
@@ -59,6 +60,7 @@ class JPARepositoryAdapterTest {
                 .firstName("Test User")
                 .password("plainPassword")
                 .role(Rol.ADMIN).build();
+
         entity = UserEntity.builder().userId(1L).firstName("Test User").build();
 
         rolEntity = RolEntity.builder()
@@ -224,5 +226,51 @@ class JPARepositoryAdapterTest {
         verify(rolMapper, times(1)).toEnum(rolEntity);
     }
 
+    /// ///////////////////////// TEST HU5 LOGIN ///////////////////////
+
+    @Test
+    void shouldFindUserByEmailSuccessfully() {
+        String email = "owner@test.com";
+        long userId = 1L;
+        rolEntity.setName("OWNER");
+        entity.setRole(rolEntity);
+        user.setRole(Rol.OWNER);
+        user.setEmail(email);
+        entity.setUserId(userId);
+        entity.setEmail(email);
+
+        when(repository.findByEmail(email)).thenReturn(Optional.of(entity));
+        when(mapper.map(entity, User.class)).thenReturn(user);
+        when(rolMapper.toEnum(rolEntity)).thenReturn(Rol.OWNER);
+
+        User result = adapter.findByEmail(email);
+
+        assertNotNull(result);
+        assertEquals(email, result.getEmail());
+        assertEquals(Rol.OWNER, result.getRole());
+        assertEquals(userId, result.getUserId());
+
+        verify(repository, times(1)).findByEmail(email);
+        verify(mapper, times(1)).map(entity, User.class);
+        verify(rolMapper, times(1)).toEnum(rolEntity);
+    }
+
+
+
+    @Test
+    void shouldThrowAuthExceptionWhenUserNotFound() {
+        String email = "unknown@test.com";
+
+        when(repository.findByEmail(email)).thenReturn(Optional.empty());
+
+        AuthException exception = assertThrows(
+                AuthException.class,
+                () -> adapter.findByEmail(email)
+        );
+
+        assertEquals("Email or password Invalid", exception.getMessage());
+        verify(repository, times(1)).findByEmail(email);
+        verify(rolMapper, never()).toEnum(any());
+    }
 
 }

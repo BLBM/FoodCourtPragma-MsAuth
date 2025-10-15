@@ -1,7 +1,9 @@
 package co.com.foodcourt.api.controller;
 
 
+import co.com.foodcourt.api.common.ErrorConstants;
 import co.com.foodcourt.api.dto.CreateUserRequest;
+import co.com.foodcourt.api.exception.UnauthorizedException;
 import co.com.foodcourt.api.global_exception_handler.GlobalExceptionHandler;
 import co.com.foodcourt.model.rol.Rol;
 import co.com.foodcourt.model.user.User;
@@ -77,7 +79,8 @@ class UserControllerTest {
     void shouldCreateUserAndReturn201() throws Exception {
         when(createUserUseCase.saveOwner(any(User.class))).thenReturn(domainUser);
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -91,7 +94,8 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new ValidationException("Custom business validation failed"));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -103,7 +107,8 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new DuplicateEmailException("Email already exists"));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
@@ -116,7 +121,8 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new DuplicateDocumentException("Document already exists"));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
@@ -128,7 +134,8 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new RuntimeException("Unexpected error"));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isInternalServerError())
@@ -149,13 +156,25 @@ class UserControllerTest {
         }
         """;
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$['error:'].firstName").value("First name is required"))
                 .andExpect(jsonPath("$['timestamp:']").exists());
     }
+
+    @Test
+    void shouldReturnUnauthorizedWhenRoleIsNotAdmin() throws Exception {
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "EMPLOYEE")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.details:").value(ErrorConstants.INVALID_ROL_CREATE_OWNER.getMessage()));
+    }
+
 
     /// /////////////// GET USER BY ID TEST////////////
 
@@ -195,6 +214,9 @@ class UserControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.error:").value("Unexpected error"));
     }
+
+
+
 }
 
 

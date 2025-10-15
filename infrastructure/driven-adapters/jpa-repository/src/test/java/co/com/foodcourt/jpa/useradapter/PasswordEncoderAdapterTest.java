@@ -4,8 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 
 @ExtendWith(MockitoExtension.class)
 class PasswordEncoderAdapterTest {
@@ -40,4 +42,25 @@ class PasswordEncoderAdapterTest {
 
         assertNotEquals(encoded1, encoded2);
     }
+
+    @Test
+    void shouldReturnTrueWhenPasswordsMatch() {
+        String rawPassword = "mySecret123";
+        String encoded = new BCryptPasswordEncoder().encode(rawPassword);
+
+        boolean matches = passwordEncoderAdapter.matches(rawPassword, encoded);
+
+        assertTrue(matches, "Expected matches() to return true for valid password comparison");
+    }
+
+    @Test
+    void shouldReturnFalseWhenPasswordsDoNotMatch() {
+        String rawPassword = "wrongPass";
+        String encoded = new BCryptPasswordEncoder().encode("correctPass");
+
+        boolean matches = passwordEncoderAdapter.matches(rawPassword, encoded);
+
+        assertFalse(matches, "Expected matches() to return false when passwords differ");
+    }
+
 }
