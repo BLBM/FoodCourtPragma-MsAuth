@@ -3,7 +3,6 @@ package co.com.foodcourt.api.controller;
 
 import co.com.foodcourt.api.common.ErrorConstants;
 import co.com.foodcourt.api.dto.CreateUserRequest;
-import co.com.foodcourt.api.exception.UnauthorizedException;
 import co.com.foodcourt.api.global_exception_handler.GlobalExceptionHandler;
 import co.com.foodcourt.model.rol.Rol;
 import co.com.foodcourt.model.user.User;

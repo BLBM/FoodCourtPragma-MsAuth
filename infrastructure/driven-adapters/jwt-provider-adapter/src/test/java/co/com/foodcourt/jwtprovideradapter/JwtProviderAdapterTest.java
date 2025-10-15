@@ -36,7 +36,7 @@ class JwtProviderAdapterTest {
         String token = jwtProviderAdapter.generateToken(userId, role, email);
 
         assertNotNull(token);
-        assertTrue(token.split("\\.").length == 3, "Token JWT debe tener 3 partes");
+        assertEquals(3, token.split("\\.").length, "Token JWT debe tener 3 partes");
 
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         Claims claims = Jwts.parser()
@@ -59,7 +59,6 @@ class JwtProviderAdapterTest {
         String role = "USER";
         String email = "test@correo.com";
 
-        long start = System.currentTimeMillis();
         String token = jwtProviderAdapter.generateToken(userId, role, email);
 
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));

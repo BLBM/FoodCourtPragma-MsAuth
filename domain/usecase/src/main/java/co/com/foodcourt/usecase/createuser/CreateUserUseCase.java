@@ -25,6 +25,10 @@ public class CreateUserUseCase {
         return saveWithRole(user, Rol.EMPLOYEE);
     }
 
+    public User saveClient(User user) {
+        return saveWithRole(user, Rol.CLIENT);
+    }
+
     public User getUser(Long userId){
         return userRepository.findByIdWithRole(userId);
     }

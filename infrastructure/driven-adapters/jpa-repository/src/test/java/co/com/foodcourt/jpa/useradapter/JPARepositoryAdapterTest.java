@@ -68,7 +68,7 @@ class JPARepositoryAdapterTest {
                 .name("ADMIN")
                 .build();
 
-        String encodedPassword = "$2a$10$encodedPassword";
+        encodedPassword = "$2a$10$encodedPassword";
 
     }
 

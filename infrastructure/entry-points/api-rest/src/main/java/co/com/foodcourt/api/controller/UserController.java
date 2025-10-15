@@ -96,7 +96,28 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(CreateUserMapper.INSTANCE.toDto(createdUser));
     }
 
+    @Operation(
+            summary = SwaggerConstants.CREATE_CLIENT_SUMMARY,
+            description = SwaggerConstants.CREATE_CLIENT_DESCRIPTION,
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Owner user successfully created",
+                            content = @Content(schema = @Schema(implementation = CreateUserResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Validation error",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "409", description = "Conflict - duplicate email or document",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Unexpected internal error",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    @PostMapping(path = "/client")
+    public ResponseEntity<CreateUserResponse> createClient(@Valid  @RequestBody CreateUserRequest user) {
 
+        log.info(LogConstants.CREATE_CLIENT_REQUEST.getMessage(), user.email());
+        User createdUser = createUserUseCase.saveClient(CreateUserMapper.INSTANCE.toDomain(user));
+        log.info(LogConstants.CREATE_CLIENT_SUCCESS.getMessage(), createdUser.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(CreateUserMapper.INSTANCE.toDto(createdUser));
+    }
 
     @Operation(
             summary = SwaggerConstants.GET_USER_BY_ID_SUMMARY,

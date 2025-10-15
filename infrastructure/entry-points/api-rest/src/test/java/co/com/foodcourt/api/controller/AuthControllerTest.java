@@ -2,14 +2,12 @@ package co.com.foodcourt.api.controller;
 
 import co.com.foodcourt.api.dto.LoginRequest;
 import co.com.foodcourt.api.global_exception_handler.GlobalExceptionHandler;
-import co.com.foodcourt.model.user.exception.AuthException;
 import co.com.foodcourt.usecase.login.LoginUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
