@@ -56,16 +56,6 @@ class CreateUserUseCaseTest {
         verify(userRepository).saveUser(argThat(u -> u.getRole() == Rol.OWNER));
     }
 
-    @Test
-    void shouldAssignEmployeeRoleAndSaveUser() {
-        when(userRepository.saveUser(any(User.class)))
-                .thenReturn(user.toBuilder().userId(2L).role(Rol.EMPLOYEE).build());
-
-        User result = createUserUseCase.saveEmployee(user);
-
-        assertEquals(Rol.EMPLOYEE, result.getRole());
-        verify(userRepository).saveUser(argThat(u -> u.getRole() == Rol.EMPLOYEE));
-    }
 
     @Test
     void shouldThrowValidationExceptionForInvalidEmail() {
@@ -140,4 +130,31 @@ class CreateUserUseCaseTest {
         verify(userRepository, times(1)).findByIdWithRole(userId);
         verifyNoMoreInteractions(userRepository);
     }
+
+    /// ///////////////////// FEATURE HU 6//////////////
+
+    @Test
+    void shouldAssignEmployeeRoleAndSaveUser() {
+        when(userRepository.saveUser(any(User.class)))
+                .thenReturn(user.toBuilder().userId(2L).role(Rol.EMPLOYEE).build());
+
+        User result = createUserUseCase.saveEmployee(user);
+
+        assertEquals(Rol.EMPLOYEE, result.getRole());
+        verify(userRepository).saveUser(argThat(u -> u.getRole() == Rol.EMPLOYEE));
+    }
+
+    /// /////////////// FEATURE HU 7/////////////////////
+
+    @Test
+    void shouldAssignClientRoleAndSaveUser() {
+        when(userRepository.saveUser(any(User.class)))
+                .thenReturn(user.toBuilder().userId(2L).role(Rol.CLIENT).build());
+
+        User result = createUserUseCase.saveClient(user);
+
+        assertEquals(Rol.CLIENT, result.getRole());
+        verify(userRepository).saveUser(argThat(u -> u.getRole() == Rol.CLIENT));
+    }
+
 }

@@ -242,6 +242,20 @@ class UserControllerTest {
     }
 
 
+    /// //////////////////////// FEATURE HU 7////////////////////
+
+    @Test
+    void shouldCreateClientAndReturn201() throws Exception {
+        when(createUserUseCase.saveClient(any(User.class))).thenReturn(domainUser);
+
+        mockMvc.perform(post("/api/v1/users/client")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Smith"))
+                .andExpect(jsonPath("$.email").value("Smith@email.com"));
+    }
 
 
 }
