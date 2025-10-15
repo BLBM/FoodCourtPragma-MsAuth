@@ -218,6 +218,29 @@ class UserControllerTest {
 
     //////////////////// FEATURE  HU6///////
 
+    @Test
+    void shouldCreateEmployeeAndReturn201() throws Exception {
+        when(createUserUseCase.saveEmployee(any(User.class))).thenReturn(domainUser);
+
+        mockMvc.perform(post("/api/v1/users/employee")
+                        .header("X-User-role", "OWNER")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Smith"))
+                .andExpect(jsonPath("$.email").value("Smith@email.com"));
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenRoleIsNotOwner() throws Exception {
+        mockMvc.perform(post("/api/v1/users/employee")
+                        .header("X-User-role", "CLIENT")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.details:").value(ErrorConstants.INVALID_ROL_CREATE_EMPLOYEE.getMessage()));
+    }
 
 
 

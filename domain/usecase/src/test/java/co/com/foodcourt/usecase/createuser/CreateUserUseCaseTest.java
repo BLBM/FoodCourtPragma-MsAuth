@@ -46,36 +46,44 @@ class CreateUserUseCaseTest {
 
     @Test
     void shouldAssignOwnerRoleAndSaveUser() {
-        User savedUser = user.toBuilder().userId(1L).role(Rol.OWNER).build();
-        when(userRepository.saveUser(any(User.class))).thenReturn(savedUser);
+        when(userRepository.saveUser(any(User.class)))
+                .thenReturn(user.toBuilder().userId(1L).role(Rol.OWNER).build());
+
         User result = createUserUseCase.saveOwner(user);
+
         assertEquals(Rol.OWNER, result.getRole());
         assertEquals(1L, result.getUserId());
-        verify(userRepository, times(1)).saveUser(user);
+        verify(userRepository).saveUser(argThat(u -> u.getRole() == Rol.OWNER));
+    }
+
+    @Test
+    void shouldAssignEmployeeRoleAndSaveUser() {
+        when(userRepository.saveUser(any(User.class)))
+                .thenReturn(user.toBuilder().userId(2L).role(Rol.EMPLOYEE).build());
+
+        User result = createUserUseCase.saveEmployee(user);
+
+        assertEquals(Rol.EMPLOYEE, result.getRole());
+        verify(userRepository).saveUser(argThat(u -> u.getRole() == Rol.EMPLOYEE));
     }
 
     @Test
     void shouldThrowValidationExceptionForInvalidEmail() {
         user.setEmail("bad-email");
-        assertThrows(ValidationException.class, () -> createUserUseCase.saveOwner(user));
-        verify(userRepository, never()).saveUser(any());
+        assertValidationFails(() -> createUserUseCase.saveOwner(user));
     }
-
 
     @Test
     void shouldThrowValidationExceptionForInvalidAge() {
         user.setBirthDate(LocalDate.of(2025, 1, 1));
-        assertThrows(ValidationException.class, () -> createUserUseCase.saveOwner(user));
-        verify(userRepository, never()).saveUser(any());
+        assertValidationFails(() -> createUserUseCase.saveOwner(user));
     }
 
     @Test
     void shouldThrowValidationExceptionForNullDocumentId() {
         user.setDocumentId(null);
-        assertThrows(ValidationException.class, () -> createUserUseCase.saveOwner(user));
-        verify(userRepository, never()).saveUser(any());
+        assertValidationFails(() -> createUserUseCase.saveOwner(user));
     }
-
 
     @Test
     void shouldThrowValidationExceptionWithCorrectMessageForPhone() {
@@ -88,16 +96,20 @@ class CreateUserUseCaseTest {
     }
 
     @Test
-    void shouldThrowValidationExceptionWhenRestaurantIsNull() {
+    void shouldThrowValidationExceptionWhenUserIsNull() {
         ValidationException ex = assertThrows(
                 ValidationException.class,
                 () -> createUserUseCase.saveOwner(null)
         );
-
         assertEquals(ValidationMessages.INVALID_USER.getMessage(), ex.getMessage());
-
         verify(userRepository, never()).saveUser(any());
     }
+
+    private void assertValidationFails(Runnable action) {
+        assertThrows(ValidationException.class, action::run);
+        verify(userRepository, never()).saveUser(any());
+    }
+
 
     /// //////////// TEST FEATURE HU2 GET USER BY ID //////////////
 
