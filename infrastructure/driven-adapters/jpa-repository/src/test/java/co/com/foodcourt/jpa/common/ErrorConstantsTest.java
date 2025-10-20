@@ -8,6 +8,6 @@ class ErrorConstantsTest {
 
     @Test
     void shouldReturnCorrectMessageForInvalidEmail() {
-        assertEquals("users_email_key", ErrorConstants.USER_EMAIL_KEY.getMessage());
+        assertEquals("email", ErrorConstants.USER_EMAIL_KEY.getMessage());
     }
 }

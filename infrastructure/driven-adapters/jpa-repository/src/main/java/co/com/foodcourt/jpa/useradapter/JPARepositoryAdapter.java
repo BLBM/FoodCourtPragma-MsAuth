@@ -8,6 +8,7 @@ import co.com.foodcourt.jpa.helper.AdapterOperations;
 import co.com.foodcourt.jpa.util.RolMapper;
 import co.com.foodcourt.model.rol.Rol;
 import co.com.foodcourt.model.user.User;
+import co.com.foodcourt.model.user.exception.AuthException;
 import co.com.foodcourt.model.user.exception.DuplicateDocumentException;
 import co.com.foodcourt.model.user.exception.DuplicateEmailException;
 import co.com.foodcourt.model.user.exception.UserNotFoundException;
@@ -68,11 +69,22 @@ implements UserRepository
 
     @Override
     public User findByIdWithRole(Long userId) {
+        log.info(LogConstants.GET_USER.getMessage(), userId);
         UserEntity entity = repository.findByIdWithRole(userId)
                 .orElseThrow(() -> new UserNotFoundException(ErrorConstants.USER_NOT_FOUND.getMessage() + userId));
+        log.info(LogConstants.USER_FOUND.getMessage(), userId);
         User user = toEntity(entity);
-        log.info("este es el user{}", entity.getRole());
         user.setRole(rolMapper.toEnum(entity.getRole()));
+        return user;
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        log.info(LogConstants.GET_USER_BY_EMAIL.getMessage(), email);
+        UserEntity userEntity = repository.findByEmail(email).orElseThrow(()->new AuthException(ErrorConstants.INVALID_AUTH.getMessage()));
+        log.info(LogConstants.USER_FOUND_BY_EMAIL.getMessage(), userEntity.getUserId());
+        User user = toEntity(userEntity);
+        user.setRole(rolMapper.toEnum(userEntity.getRole()));
         return user;
     }
 }

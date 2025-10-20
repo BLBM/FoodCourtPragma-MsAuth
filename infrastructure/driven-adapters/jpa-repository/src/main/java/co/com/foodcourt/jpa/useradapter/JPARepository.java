@@ -12,4 +12,6 @@ public interface JPARepository extends CrudRepository<UserEntity, Long>, QueryBy
 
     @Query("SELECT u FROM UserEntity u JOIN FETCH u.role WHERE u.userId = :userId")
     Optional<UserEntity> findByIdWithRole(@Param("userId") Long userId);
+
+    Optional<UserEntity> findByEmail(String email);
 }

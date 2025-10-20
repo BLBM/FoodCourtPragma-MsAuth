@@ -1,8 +1,10 @@
 package co.com.foodcourt.api.global_exception_handler;
 
 import co.com.foodcourt.api.common.LogConstants;
+import co.com.foodcourt.api.exception.UnauthorizedException;
 import co.com.foodcourt.model.user.exception.DuplicateDocumentException;
 import co.com.foodcourt.model.user.exception.DuplicateEmailException;
+import co.com.foodcourt.model.user.exception.UserNotFoundException;
 import co.com.foodcourt.usecase.exception.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,32 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
+    @ExceptionHandler({DuplicateDocumentException.class, DuplicateEmailException.class})
+    public ResponseEntity<Map<String, Object>> handleDuplicateExceptions(RuntimeException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put(LogConstants.TIMESTAMP.getMessage(), LocalDateTime.now());
+        body.put(LogConstants.DETAILS.getMessage(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateExceptions(UserNotFoundException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put(LogConstants.TIMESTAMP.getMessage(), LocalDateTime.now());
+        body.put(LogConstants.DETAILS.getMessage(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorizedException(UnauthorizedException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put(LogConstants.TIMESTAMP.getMessage(), LocalDateTime.now());
+        body.put(LogConstants.ERROR.getMessage(), "Unauthorized");
+        body.put(LogConstants.DETAILS.getMessage(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         Map<String, Object> body = new HashMap<>();
@@ -49,12 +77,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
-    @ExceptionHandler({DuplicateDocumentException.class, DuplicateEmailException.class})
-    public ResponseEntity<Map<String, Object>> handleDuplicateExceptions(RuntimeException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(LogConstants.TIMESTAMP.getMessage(), LocalDateTime.now());
-        body.put(LogConstants.DETAILS.getMessage(), ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
-    }
 
 }

@@ -9,7 +9,8 @@ public enum ValidationMessages {
     INVALID_DOCUMENT("Invalid document ID. Only numeric values are allowed"),
     INVALID_USER("User object is null"),
     INVALID_ROLE("Invalid user role"),
-    INVALID_BIRTHDATE("User must be at least 18 years old");
+    INVALID_BIRTHDATE("User must be at least 18 years old"),
+    INVALID_AUTH("Email or password Invalid");
 
     private final String message;
 

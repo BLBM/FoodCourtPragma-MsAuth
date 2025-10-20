@@ -5,4 +5,5 @@ import co.com.foodcourt.model.user.User;
 public interface UserRepository {
     User saveUser(User user);
     User findByIdWithRole(Long userId);
+    User findByEmail(String email);
 }

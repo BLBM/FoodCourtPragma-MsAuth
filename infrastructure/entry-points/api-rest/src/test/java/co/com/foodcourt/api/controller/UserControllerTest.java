@@ -1,12 +1,14 @@
 package co.com.foodcourt.api.controller;
 
 
+import co.com.foodcourt.api.common.ErrorConstants;
 import co.com.foodcourt.api.dto.CreateUserRequest;
 import co.com.foodcourt.api.global_exception_handler.GlobalExceptionHandler;
 import co.com.foodcourt.model.rol.Rol;
 import co.com.foodcourt.model.user.User;
 import co.com.foodcourt.model.user.exception.DuplicateDocumentException;
 import co.com.foodcourt.model.user.exception.DuplicateEmailException;
+import co.com.foodcourt.model.user.exception.UserNotFoundException;
 import co.com.foodcourt.usecase.createuser.CreateUserUseCase;
 import co.com.foodcourt.usecase.exception.ValidationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +24,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -74,7 +78,8 @@ class UserControllerTest {
     void shouldCreateUserAndReturn201() throws Exception {
         when(createUserUseCase.saveOwner(any(User.class))).thenReturn(domainUser);
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -88,7 +93,8 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new ValidationException("Custom business validation failed"));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -100,7 +106,8 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new DuplicateEmailException("Email already exists"));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
@@ -113,7 +120,8 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new DuplicateDocumentException("Document already exists"));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
@@ -125,7 +133,8 @@ class UserControllerTest {
         when(createUserUseCase.saveOwner(any(User.class)))
                 .thenThrow(new RuntimeException("Unexpected error"));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isInternalServerError())
@@ -146,7 +155,8 @@ class UserControllerTest {
         }
         """;
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
                 .andExpect(status().isBadRequest())
@@ -154,7 +164,101 @@ class UserControllerTest {
                 .andExpect(jsonPath("$['timestamp:']").exists());
     }
 
+    @Test
+    void shouldReturnUnauthorizedWhenRoleIsNotAdmin() throws Exception {
+        mockMvc.perform(post("/api/v1/users/owner")
+                        .header("X-User-role", "EMPLOYEE")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.details:").value(ErrorConstants.INVALID_ROL_CREATE_OWNER.getMessage()));
+    }
 
+
+    /// /////////////// GET USER BY ID TEST////////////
+
+    @Test
+    void shouldGetUserByIdAndReturn200() throws Exception {
+
+        Long userId = 1L;
+        when(createUserUseCase.getUser(userId)).thenReturn(domainUser);
+
+        mockMvc.perform(get("/api/v1/users/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Smith"))
+                .andExpect(jsonPath("$.email").value("Smith@email.com"))
+                .andExpect(jsonPath("$.phone").value("+573155544545"))
+                .andExpect(jsonPath("$.role").value("ADMIN"));
+    }
+
+    @Test
+    void shouldHandleUserNotFoundExceptionAndReturn404() throws Exception {
+        Long userId = 999L;
+        when(createUserUseCase.getUser(anyLong()))
+                .thenThrow(new UserNotFoundException("User not found with id: " + userId));
+
+        mockMvc.perform(get("/api/v1/users/{userId}", userId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.details:").value("User not found with id: " + userId));
+    }
+
+    @Test
+    void shouldHandleGenericExceptionAndReturn500() throws Exception {
+        Long userId = 1L;
+        when(createUserUseCase.getUser(anyLong()))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        mockMvc.perform(get("/api/v1/users/{userId}", userId))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error:").value("Unexpected error"));
+    }
+
+
+    //////////////////// FEATURE  HU6///////
+
+    @Test
+    void shouldCreateEmployeeAndReturn201() throws Exception {
+        when(createUserUseCase.saveEmployee(any(User.class))).thenReturn(domainUser);
+
+        mockMvc.perform(post("/api/v1/users/employee")
+                        .header("X-User-role", "OWNER")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Smith"))
+                .andExpect(jsonPath("$.email").value("Smith@email.com"));
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenRoleIsNotOwner() throws Exception {
+        mockMvc.perform(post("/api/v1/users/employee")
+                        .header("X-User-role", "CLIENT")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.details:").value(ErrorConstants.INVALID_ROL_CREATE_EMPLOYEE.getMessage()));
+    }
+
+
+    /// //////////////////////// FEATURE HU 7////////////////////
+
+    @Test
+    void shouldCreateClientAndReturn201() throws Exception {
+        when(createUserUseCase.saveClient(any(User.class))).thenReturn(domainUser);
+
+        mockMvc.perform(post("/api/v1/users/client")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Smith"))
+                .andExpect(jsonPath("$.email").value("Smith@email.com"));
+    }
 
 
 }
+
+
+

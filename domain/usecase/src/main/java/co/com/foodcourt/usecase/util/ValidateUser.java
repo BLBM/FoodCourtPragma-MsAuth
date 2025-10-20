@@ -38,11 +38,6 @@ public class ValidateUser {
         }
     }
 
-    public static void validateRole(Rol role) {
-        if (role == null) {
-            throw new ValidationException(ValidationMessages.INVALID_ROLE.getMessage());
-        }
-    }
 
     public static void validateBirthDate(LocalDate birthDate) {
         if (birthDate == null) {
@@ -63,7 +58,6 @@ public class ValidateUser {
         validateEmail(user.getEmail());
         validatePhone(user.getPhone());
         validateDocumentId(user.getDocumentId());
-        validateRole(user.getRole());
         validateBirthDate(user.getBirthDate());
     }
 }
